@@ -1,3 +1,8 @@
+// Home button handler
+document.querySelector('.home-button').addEventListener('click', () => {
+    window.location.href = '../../index.html';
+});
+
 // Toggle password visibility using Bootstrap Icons
 const togglePassword = document.getElementById('togglePassword');
 const passwordInput = togglePassword.parentElement.querySelector('input');
@@ -70,16 +75,16 @@ authForm.addEventListener('submit', function (e) {
     e.preventDefault();
     const nameInput = document.querySelector('input[type="text"]');
     const emailInput = document.querySelector('input[type="email"]');
-    
+
     // Get user data
     const userData = {
         name: nameInput && nameInput.value ? nameInput.value : emailInput.value.split('@')[0],
         email: emailInput.value
     };
-    
+
     // Save user data to localStorage
     localStorage.setItem('userData', JSON.stringify(userData));
-    
+
     // Redirect to index page
     window.location.href = '/index.html';
 });
