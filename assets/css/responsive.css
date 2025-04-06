@@ -1,0 +1,138 @@
+@media (min-width: 575px) {
+
+    .container,
+    .header,
+    .navbar {
+        max-width: 540px;
+        width: 100%;
+        margin-inline: auto;
+    }
+
+    .section-text {
+        font-size: 2rem;
+    }
+
+    .header {
+        top: 30px;
+    }
+
+    .header.active {
+        max-width: unset;
+    }
+
+    .navbar {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .hero {
+        padding-block-start: calc(80px + 100px);
+        text-align: left;
+    }
+
+    .hero .container {
+        grid-template-columns: 1fr 0.8fr;
+        align-items: center;
+    }
+
+    .hero .section-subtitle {
+        text-align: left;
+    }
+}
+
+@media (min-width: 768px) {
+
+    .container,
+    .header,
+    .navbar {
+        max-width: 720px;
+    }
+
+    .grid-list {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .hero {
+        padding-block-start: calc(80px + 100px);
+        text-align: left;
+    }
+
+    .hero .container {
+        grid-template-columns: 1fr 0.8fr;
+        align-items: center;
+    }
+
+    .hero .section-subtitle {
+        text-align: left;
+    }
+}
+
+@media (min-width: 992px) {
+
+    .container,
+    .header,
+    .navbar {
+        max-width: 960px;
+    }
+
+    .grid-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .header .container {
+        padding-inline: 20px 30px;
+    }
+
+    .nav-toggle-btn {
+        display: none;
+    }
+
+    .navbar,
+    .navbar.active {
+        all: unset;
+    }
+
+    .navbar-list {
+        margin-block-end: 0;
+        display: flex;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .hero {
+        padding-block-start: calc(80px + 100px);
+        text-align: left;
+    }
+
+    .hero .container {
+        grid-template-columns: 1fr 0.8fr;
+        align-items: center;
+    }
+
+    .hero .section-subtitle {
+        text-align: left;
+    }
+}
+
+@media (min-width: 1200px) {
+
+    .container,
+    .header,
+    .navbar {
+        max-width: 1140px;
+    }
+
+    .hero {
+        padding-block-start: calc(80px + 100px);
+        text-align: left;
+    }
+
+    .hero .container {
+        grid-template-columns: 1fr 0.8fr;
+        align-items: center;
+    }
+
+    .hero .section-subtitle {
+        text-align: left;
+    }
+}
