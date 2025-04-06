@@ -136,3 +136,28 @@
         text-align: left;
     }
 }
+
+@media (max-width: 768px) {
+    .card {
+        flex-direction: column;
+    }
+
+    .card-left,
+    .card-right {
+        width: 100%;
+    }
+
+    .card-left {
+        padding-bottom: 0;
+    }
+
+    .illustration {
+        padding: 1rem 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .social-buttons {
+        grid-template-columns: 1fr;
+    }
+}
