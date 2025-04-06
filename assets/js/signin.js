@@ -49,3 +49,58 @@ authForm.addEventListener('submit', function (e) {
     e.preventDefault();
     console.log('Form submitted');
 });
+
+// User profile functionality
+const userProfile = document.querySelector('.user-profile');
+const profileIcon = document.querySelector('.profile-icon');
+const dropdownMenu = document.querySelector('.dropdown-menu');
+const signOutButton = document.querySelector('.sign-out');
+
+// Function to get initials from name
+function getInitials(name) {
+    return name
+        .split(' ')
+        .map(word => word[0])
+        .join('')
+        .toUpperCase();
+}
+
+// Handle form submission and redirect
+authForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const nameInput = document.querySelector('input[type="text"]');
+    const emailInput = document.querySelector('input[type="email"]');
+    
+    // Get user data
+    const userData = {
+        name: nameInput && nameInput.value ? nameInput.value : emailInput.value.split('@')[0],
+        email: emailInput.value
+    };
+    
+    // Save user data to localStorage
+    localStorage.setItem('userData', JSON.stringify(userData));
+    
+    // Redirect to index page
+    window.location.href = '/index.html';
+});
+
+// Toggle dropdown menu
+profileIcon.addEventListener('click', () => {
+    dropdownMenu.classList.toggle('active');
+});
+
+// Handle sign out
+signOutButton.addEventListener('click', () => {
+    userProfile.style.display = 'none';
+    dropdownMenu.classList.remove('active');
+    document.querySelector('.form-container').style.display = 'block';
+    document.querySelector('.signup-link').style.display = 'block';
+    authForm.reset();
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!userProfile.contains(e.target)) {
+        dropdownMenu.classList.remove('active');
+    }
+});

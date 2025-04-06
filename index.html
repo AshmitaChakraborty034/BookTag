@@ -32,10 +32,37 @@
           <li class="navbar-item">
             <a href="#books" class="navbar-link" data-nav-link>Books</a>
           </li>
-          <li class="navbar-item">
+          <li class="navbar-item" id="auth-section">
             <a href="./assets/html/signin.html" class="navbar-link signin-link">Sign In</a>
           </li>
-          <li class="divider"></li>
+          <li class="navbar-item user-profile" style="display: none;">
+            <div class="profile-icon"></div>
+            <div class="dropdown-menu">
+              <div class="dropdown-header">
+                <div class="user-info">
+                  <div class="profile-icon-small"></div>
+                  <div class="user-details">
+                    <span class="user-name"></span>
+                    <span class="user-email"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item">
+                <i class="bi bi-person"></i>
+                <span>Profile</span>
+              </a>
+              <a href="#" class="dropdown-item">
+                <i class="bi bi-gear"></i>
+                <span>Settings</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item sign-out">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </li>
           <li class="navbar-item">
             <a href="#" class="navbar-link" data-cart-toggle>
               <i class="bi bi-cart3"></i>
@@ -76,6 +103,7 @@
   </main>
 
   <script src="./assets/js/script.js" defer></script>
+  <script src="./assets/js/userProfile.js" defer></script>
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </body>
