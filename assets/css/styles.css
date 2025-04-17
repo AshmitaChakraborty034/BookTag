@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Volkhov:ital@1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Delius&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Galada&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Delius&display=swap');
+
+
 *,
 *::before,
 *::after {
@@ -111,6 +118,10 @@ body {
   font-weight: 700;
   letter-spacing: 4px;
   text-align: center;
+  font-family: "Volkhov", serif;
+  font-weight: 400;
+  font-style: italic;
+  margin-left: 10px;
 }
 
 .h1,
@@ -118,7 +129,9 @@ body {
 .h3,
 .tab-text {
   color: hsl(203, 30%, 26%);
-  font-family: 'Philosopher', sans-serif;
+  font-family: "Volkhov", serif;
+  font-weight: 400;
+  font-style: italic;
   line-height: 1.2;
 }
 
@@ -216,6 +229,9 @@ body {
   border-radius: 50px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-family: "Volkhov", serif;
+  font-weight: 400;
+  font-style: italic;
 }
 
 .btn-primary:is(:hover, :focus) {
@@ -372,6 +388,9 @@ body {
 .hero .section-text {
   font-size: 2.2rem;
   margin-block-end: 40px;
+  font-family: "Volkhov", serif;
+  font-weight: 400;
+  font-style: italic;
 }
 
 .hero-banner {
