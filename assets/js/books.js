@@ -154,29 +154,333 @@ const books = [
 const currentFilters = {
     category: "all",
     price: "all",
-    sort: "featured"
+    sort: "featured",
+    search: ""
 };
 let currentView = "grid";
 
+// Shopping cart and bookmarks
+let cart = [];
+let bookmarks = [];
+
+// Load cart and bookmarks from localStorage if available
+function loadSavedData() {
+    const savedCart = localStorage.getItem('bookstore-cart');
+    const savedBookmarks = localStorage.getItem('bookstore-bookmarks');
+
+    if (savedCart) {
+        cart = JSON.parse(savedCart);
+        updateCartCount();
+    }
+
+    if (savedBookmarks) {
+        bookmarks = JSON.parse(savedBookmarks);
+        updateBookmarkCount();
+    }
+}
+
+// Save cart and bookmarks to localStorage
+function saveData() {
+    localStorage.setItem('bookstore-cart', JSON.stringify(cart));
+    localStorage.setItem('bookstore-bookmarks', JSON.stringify(bookmarks));
+}
+
+// Update cart count badge
+function updateCartCount() {
+    const cartCount = document.getElementById('cart-count');
+    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    cartCount.textContent = totalItems;
+
+    if (totalItems > 0) {
+        cartCount.style.display = 'flex';
+    } else {
+        cartCount.style.display = 'none';
+    }
+}
+
+// Update bookmark count badge
+function updateBookmarkCount() {
+    const bookmarkCount = document.getElementById('bookmark-count');
+    bookmarkCount.textContent = bookmarks.length;
+
+    if (bookmarks.length > 0) {
+        bookmarkCount.style.display = 'flex';
+    } else {
+        bookmarkCount.style.display = 'none';
+    }
+}
+
+// Show notification
+function showNotification(message, isSuccess = true) {
+    const notification = document.getElementById('notification');
+    const notificationMessage = document.getElementById('notification-message');
+    const notificationIcon = document.querySelector('.notification-icon');
+
+    notification.style.backgroundColor = isSuccess ? '#2ecc71' : '#e74c3c';
+    notificationIcon.className = 'notification-icon fas ' + (isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle');
+    notificationMessage.textContent = message;
+
+    notification.classList.add('active');
+
+    // Hide notification after 3 seconds
+    setTimeout(() => {
+        notification.classList.remove('active');
+    }, 3000);
+}
+
+// Add item to cart
+function addToCart(bookId, quantity = 1) {
+    const book = books.find(b => b.id === bookId);
+
+    if (!book) return;
+
+    const existingItem = cart.find(item => item.id === bookId);
+
+    if (existingItem) {
+        existingItem.quantity += quantity;
+    } else {
+        cart.push({
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            price: book.price,
+            coverImage: book.coverImage,
+            quantity: quantity
+        });
+    }
+
+    updateCartCount();
+    saveData();
+    renderCart();
+    showNotification(`"${book.title}" added to cart`);
+}
+
+// Remove item from cart
+function removeFromCart(bookId) {
+    const bookIndex = cart.findIndex(item => item.id === bookId);
+
+    if (bookIndex !== -1) {
+        const bookTitle = cart[bookIndex].title;
+        cart.splice(bookIndex, 1);
+        updateCartCount();
+        saveData();
+        renderCart();
+        showNotification(`"${bookTitle}" removed from cart`);
+    }
+}
+
+// Update cart item quantity
+function updateCartItemQuantity(bookId, quantity) {
+    const item = cart.find(item => item.id === bookId);
+
+    if (item) {
+        if (quantity <= 0) {
+            removeFromCart(bookId);
+        } else {
+            item.quantity = quantity;
+            updateCartCount();
+            saveData();
+            renderCart();
+        }
+    }
+}
+
+// Toggle bookmark
+function toggleBookmark(bookId) {
+    const book = books.find(b => b.id === bookId);
+
+    if (!book) return;
+
+    const bookmarkIndex = bookmarks.findIndex(item => item.id === bookId);
+
+    if (bookmarkIndex !== -1) {
+        // Remove bookmark
+        const bookTitle = bookmarks[bookmarkIndex].title;
+        bookmarks.splice(bookmarkIndex, 1);
+        showNotification(`"${bookTitle}" removed from bookmarks`);
+    } else {
+        // Add bookmark
+        bookmarks.push({
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            price: book.price,
+            coverImage: book.coverImage
+        });
+        showNotification(`"${book.title}" added to bookmarks`);
+    }
+
+    updateBookmarkCount();
+    saveData();
+    renderBookmarks();
+}
+
+// Check if a book is bookmarked
+function isBookmarked(bookId) {
+    return bookmarks.some(item => item.id === bookId);
+}
+
+// Render cart items
+function renderCart() {
+    const cartItems = document.getElementById('cart-items');
+    const cartTotalAmount = document.getElementById('cart-total-amount');
+
+    if (cart.length === 0) {
+        cartItems.innerHTML = '<div class="empty-message">Your cart is empty</div>';
+        cartTotalAmount.textContent = '$0.00';
+        return;
+    }
+
+    let total = 0;
+    let cartHTML = '';
+
+    cart.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+
+        cartHTML += `
+        <div class="cart-item" data-id="${item.id}">
+            <div class="cart-item-image">
+                <img src="${item.coverImage}" alt="${item.title}">
+            </div>
+            <div class="cart-item-details">
+                <h3 class="cart-item-title">${item.title}</h3>
+                <p class="cart-item-author">${item.author}</p>
+                <p class="cart-item-price">$${item.price.toFixed(2)}</p>
+                <div class="cart-item-quantity">
+                    <button class="quantity-btn decrease-btn" data-id="${item.id}">-</button>
+                    <input type="number" class="quantity-input" value="${item.quantity}" min="1" data-id="${item.id}">
+                    <button class="quantity-btn increase-btn" data-id="${item.id}">+</button>
+                </div>
+                <button class="cart-item-remove" data-id="${item.id}">Remove</button>
+            </div>
+        </div>
+        `;
+    });
+
+    cartItems.innerHTML = cartHTML;
+    cartTotalAmount.textContent = `$${total.toFixed(2)}`;
+
+    // Add event listeners to cart item controls
+    document.querySelectorAll('.decrease-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            const item = cart.find(item => item.id === id);
+            if (item && item.quantity > 1) {
+                updateCartItemQuantity(id, item.quantity - 1);
+            }
+        });
+    });
+
+    document.querySelectorAll('.increase-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                updateCartItemQuantity(id, item.quantity + 1);
+            }
+        });
+    });
+
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', () => {
+            const id = parseInt(input.getAttribute('data-id'));
+            const quantity = parseInt(input.value);
+            if (!isNaN(quantity) && quantity > 0) {
+                updateCartItemQuantity(id, quantity);
+            } else {
+                input.value = 1;
+                updateCartItemQuantity(id, 1);
+            }
+        });
+    });
+
+    document.querySelectorAll('.cart-item-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            removeFromCart(id);
+        });
+    });
+}
+
+// Render bookmarked items
+function renderBookmarks() {
+    const bookmarkItems = document.getElementById('bookmark-items');
+
+    if (bookmarks.length === 0) {
+        bookmarkItems.innerHTML = '<div class="empty-message">You haven\'t bookmarked any books yet</div>';
+        return;
+    }
+
+    let bookmarksHTML = '';
+
+    bookmarks.forEach(item => {
+        bookmarksHTML += `
+        <div class="bookmark-item" data-id="${item.id}">
+            <div class="bookmark-item-image">
+                <img src="${item.coverImage}" alt="${item.title}">
+            </div>
+            <div class="bookmark-item-details">
+                <h3 class="bookmark-item-title">${item.title}</h3>
+                <p class="bookmark-item-author">${item.author}</p>
+                <p class="bookmark-item-price">$${item.price.toFixed(2)}</p>
+                <button class="bookmark-item-add-to-cart" data-id="${item.id}">Add to Cart</button>
+                <button class="bookmark-item-remove" data-id="${item.id}">Remove Bookmark</button>
+            </div>
+        </div>
+        `;
+    });
+
+    bookmarkItems.innerHTML = bookmarksHTML;
+
+    // Add event listeners to bookmark item controls
+    document.querySelectorAll('.bookmark-item-add-to-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            addToCart(id);
+        });
+    });
+
+    document.querySelectorAll('.bookmark-item-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            toggleBookmark(id);
+        });
+    });
+}
+
 // ---------- DOM Content Loaded ----------
 document.addEventListener("DOMContentLoaded", () => {
+    // Load saved cart and bookmarks
+    loadSavedData();
+
     // --- Search Bar Functionality ---
     const searchInput = document.getElementById("search-input");
+    const searchBtn = document.getElementById("search-btn");
     const searchSuggestions = document.getElementById("search-suggestions");
+
+    // Enhanced search functionality
     searchInput.addEventListener("input", () => {
         const query = searchInput.value.trim().toLowerCase();
+
         if (query !== "") {
+            // Search by title or author
             const matches = books.filter(book =>
-                book.title.toLowerCase().includes(query)
+                book.title.toLowerCase().includes(query) ||
+                book.author.toLowerCase().includes(query)
             );
+
             if (matches.length) {
                 searchSuggestions.innerHTML = matches
                     .map(
                         book =>
                             `<div class="suggestion-item" data-id="${book.id}">
-                  <img src="${book.coverImage}" alt="${book.title}">
-                  ${book.title}
-                </div>`
+                                <img src="${book.coverImage}" alt="${book.title}">
+                                <div>
+                                    <div>${book.title}</div>
+                                    <small>${book.author}</small>
+                                </div>
+                            </div>`
                     )
                     .join("");
                 searchSuggestions.classList.add("active");
@@ -188,25 +492,55 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             searchSuggestions.innerHTML = "";
             searchSuggestions.classList.remove("active");
+            currentFilters.search = "";
+            filterAndRenderBooks();
         }
     });
-    // Clicking a suggestion fills the search input
-    searchSuggestions.addEventListener("click", (e) => {
-        if (
-            e.target.classList.contains("suggestion-item") ||
-            e.target.parentElement.classList.contains("suggestion-item")
-        ) {
-            const item = e.target.closest(".suggestion-item");
-            searchInput.value = item.innerText.trim();
-            searchSuggestions.innerHTML = "";
+
+    // Search button click
+    searchBtn.addEventListener("click", () => {
+        const query = searchInput.value.trim().toLowerCase();
+        if (query !== "") {
+            currentFilters.search = query;
+            filterAndRenderBooks();
             searchSuggestions.classList.remove("active");
         }
     });
+
+    // Search on Enter key
+    searchInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            const query = searchInput.value.trim().toLowerCase();
+            if (query !== "") {
+                currentFilters.search = query;
+                filterAndRenderBooks();
+                searchSuggestions.classList.remove("active");
+            }
+        }
+    });
+
+    // Clicking a suggestion fills the search input and performs search
+    searchSuggestions.addEventListener("click", (e) => {
+        const item = e.target.closest(".suggestion-item");
+        if (item) {
+            const bookId = parseInt(item.getAttribute("data-id"));
+            const book = books.find(b => b.id === bookId);
+
+            if (book) {
+                searchInput.value = book.title;
+                currentFilters.search = book.title.toLowerCase();
+                filterAndRenderBooks();
+                searchSuggestions.classList.remove("active");
+            }
+        }
+    });
+
     // Hide suggestions when clicking outside
     document.addEventListener("click", (e) => {
         if (
             !searchInput.contains(e.target) &&
-            !searchSuggestions.contains(e.target)
+            !searchSuggestions.contains(e.target) &&
+            !searchBtn.contains(e.target)
         ) {
             searchSuggestions.classList.remove("active");
         }
@@ -268,6 +602,55 @@ document.addEventListener("DOMContentLoaded", () => {
         filterAndRenderBooks();
     });
 
+    // --- Cart and Bookmark Overlays ---
+    const cartBtn = document.getElementById("cart-btn");
+    const bookmarkBtn = document.getElementById("bookmark-btn");
+    const cartOverlay = document.getElementById("cart-overlay");
+    const bookmarksOverlay = document.getElementById("bookmarks-overlay");
+    const closeButtons = document.querySelectorAll(".close-overlay");
+
+    // Open cart overlay
+    cartBtn.addEventListener("click", () => {
+        renderCart();
+        cartOverlay.classList.add("active");
+        document.body.style.overflow = "hidden"; // Prevent scrolling
+    });
+
+    // Open bookmarks overlay
+    bookmarkBtn.addEventListener("click", () => {
+        renderBookmarks();
+        bookmarksOverlay.classList.add("active");
+        document.body.style.overflow = "hidden"; // Prevent scrolling
+    });
+
+    // Close overlays
+    closeButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            cartOverlay.classList.remove("active");
+            bookmarksOverlay.classList.remove("active");
+            document.body.style.overflow = ""; // Restore scrolling
+        });
+    });
+
+    // Close overlays when clicking outside content
+    document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("overlay")) {
+            cartOverlay.classList.remove("active");
+            bookmarksOverlay.classList.remove("active");
+            document.body.style.overflow = ""; // Restore scrolling
+        }
+    });
+
+    // Checkout button
+    document.getElementById("checkout-btn").addEventListener("click", () => {
+        if (cart.length > 0) {
+            showNotification("Checkout functionality would go here!", true);
+            // In a real application, this would redirect to a checkout page
+        } else {
+            showNotification("Your cart is empty", false);
+        }
+    });
+
     // Initial render
     filterAndRenderBooks();
 });
@@ -286,6 +669,15 @@ function updateActiveClass(selector, value, attribute) {
 function filterAndRenderBooks() {
     // Only include books with non-empty coverImage URL
     let filteredBooks = books.filter(book => book.coverImage && book.coverImage.trim() !== "");
+
+    // Search filter
+    if (currentFilters.search !== "") {
+        filteredBooks = filteredBooks.filter(book =>
+            book.title.toLowerCase().includes(currentFilters.search) ||
+            book.author.toLowerCase().includes(currentFilters.search) ||
+            book.description.toLowerCase().includes(currentFilters.search)
+        );
+    }
 
     // Category filter
     if (currentFilters.category !== "all") {
@@ -331,6 +723,7 @@ function renderBooksGrid(bookArray) {
     container.className = "books-grid";
     container.innerHTML = "";
     bookArray.forEach(book => {
+        const isBookmarkedClass = isBookmarked(book.id) ? "fas" : "far";
         const card = document.createElement("div");
         card.classList.add("book-card");
         card.innerHTML = `
@@ -348,12 +741,34 @@ function renderBooksGrid(bookArray) {
               <span>$${book.price.toFixed(2)}</span>
             </div>
             <div class="grid-actions">
-              <button class="action-btn"><i class="fas fa-shopping-cart"></i></button>
-              <button class="action-btn"><i class="fas fa-bookmark"></i></button>
+              <button class="action-btn add-to-cart-btn" data-id="${book.id}"><i class="fas fa-shopping-cart"></i></button>
+              <button class="action-btn toggle-bookmark-btn" data-id="${book.id}"><i class="${isBookmarkedClass} fa-bookmark"></i></button>
             </div>
           </div>
         </div>`;
         container.appendChild(card);
+    });
+
+    // Add event listeners to grid view buttons
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            addToCart(id);
+        });
+    });
+
+    document.querySelectorAll('.toggle-bookmark-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            toggleBookmark(id);
+            // Update bookmark icon
+            const icon = btn.querySelector('i');
+            if (isBookmarked(id)) {
+                icon.className = "fas fa-bookmark";
+            } else {
+                icon.className = "far fa-bookmark";
+            }
+        });
     });
 }
 
@@ -363,6 +778,7 @@ function renderBooksList(bookArray) {
     container.className = "books-list";
     container.innerHTML = "";
     bookArray.forEach(book => {
+        const isBookmarkedClass = isBookmarked(book.id) ? "fas" : "far";
         const listItem = document.createElement("div");
         listItem.classList.add("book-list-item");
         listItem.innerHTML = `
@@ -378,13 +794,33 @@ function renderBooksList(bookArray) {
           <div class="list-footer">
             <span>$${book.price.toFixed(2)}</span>
             <div class="list-actions">
-              <button class="action-btn"><i class="fas fa-shopping-cart"></i></button>
-              <button class="action-btn"><i class="fas fa-bookmark"></i></button>
+              <button class="action-btn add-to-cart-btn" data-id="${book.id}"><i class="fas fa-shopping-cart"></i></button>
+              <button class="action-btn toggle-bookmark-btn" data-id="${book.id}"><i class="${isBookmarkedClass} fa-bookmark"></i></button>
             </div>
           </div>
         </div>`;
         container.appendChild(listItem);
     });
+
+    // Add event listeners to list view buttons
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            addToCart(id);
+        });
+    });
+
+    document.querySelectorAll('.toggle-bookmark-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            toggleBookmark(id);
+            // Update bookmark icon
+            const icon = btn.querySelector('i');
+            if (isBookmarked(id)) {
+                icon.className = "fas fa-bookmark";
+            } else {
+                icon.className = "far fa-bookmark";
+            }
+        });
+    });
 }
-
-

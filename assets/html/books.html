@@ -15,6 +15,40 @@
 </head>
 
 <body>
+    <!-- Shopping Cart Overlay -->
+    <div id="cart-overlay" class="overlay">
+        <div class="overlay-content">
+            <div class="overlay-header">
+                <h2>Your Shopping Cart</h2>
+                <button class="close-overlay">&times;</button>
+            </div>
+            <div id="cart-items" class="overlay-items">
+                <!-- Cart items will be added here dynamically -->
+                <div class="empty-message">Your cart is empty</div>
+            </div>
+            <div class="overlay-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total-amount">$0.00</span>
+                </div>
+                <button id="checkout-btn" class="action-button">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookmarks Overlay -->
+    <div id="bookmarks-overlay" class="overlay">
+        <div class="overlay-content">
+            <div class="overlay-header">
+                <h2>Your Bookmarked Books</h2>
+                <button class="close-overlay">&times;</button>
+            </div>
+            <div id="bookmark-items" class="overlay-items">
+                <!-- Bookmarked items will be added here dynamically -->
+                <div class="empty-message">You haven't bookmarked any books yet</div>
+            </div>
+        </div>
+    </div>
 
     <section class="hero">
         <div class="container">
@@ -89,11 +123,13 @@
                         <a href="/index.html" class="home-btn icon-btn">
                             <i class="fas fa-home"></i>
                         </a>
-                        <button class="icon-btn cart-btn">
+                        <button class="icon-btn cart-btn" id="cart-btn">
                             <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count" id="cart-count">0</span>
                         </button>
-                        <button class="icon-btn bookmark-btn">
+                        <button class="icon-btn bookmark-btn" id="bookmark-btn">
                             <i class="fas fa-bookmark"></i>
+                            <span class="bookmark-count" id="bookmark-count">0</span>
                         </button>
                     </div>
                     <button id="grid-view-btn" class="view-btn active">
@@ -102,7 +138,6 @@
                     <button id="list-view-btn" class="view-btn">
                         <i class="fas fa-list"></i>
                     </button>
-
                 </div>
             </div>
 
@@ -114,6 +149,14 @@
             </div>
         </div>
     </section>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="notification">
+        <div class="notification-content">
+            <i class="notification-icon"></i>
+            <span id="notification-message"></span>
+        </div>
+    </div>
 
     <script src='../js/books.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js'></script>
